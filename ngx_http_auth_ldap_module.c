@@ -1934,7 +1934,7 @@ static ngx_int_t
 ngx_http_auth_ldap_check_bind(ngx_http_request_t *r, ngx_http_auth_ldap_ctx_t *ctx)
 {
     struct berval cred;
-    ngx_int_t rc;
+    ngx_int_t rc, rc2;
 
     /* On the first call, initiate the bind LDAP operation */
     if (ctx->iteration == 0) {
@@ -1945,6 +1945,12 @@ ngx_http_auth_ldap_check_bind(ngx_http_request_t *r, ngx_http_auth_ldap_ctx_t *c
         cred.bv_val = (char *) r->headers_in.passwd.data;
         cred.bv_len = r->headers_in.passwd.len;
         rc = ldap_sasl_bind(ctx->c->ld, (const char *) ctx->dn.data, LDAP_SASL_SIMPLE, &cred, NULL, NULL, &ctx->c->msgid);
+
+        int rebind_msgid;
+        cred.bv_val = (char *) ctx->server->bind_dn_passwd.data;
+        cred.bv_len = ctx->server->bind_dn_passwd.len;
+        rc2 = ldap_sasl_bind(ctx->c->ld,(const char *) ctx->server->bind_dn.data, LDAP_SASL_SIMPLE, &cred, NULL, NULL, &rebind_msgid);
+
         if (rc != LDAP_SUCCESS) {
             ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "http_auth_ldap: ldap_sasl_bind() failed (%d: %s)",
                 rc, ldap_err2string(rc));
