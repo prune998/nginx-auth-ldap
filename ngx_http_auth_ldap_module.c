@@ -1947,10 +1947,9 @@ ngx_http_auth_ldap_check_bind(ngx_http_request_t *r, ngx_http_auth_ldap_ctx_t *c
         rc = ldap_sasl_bind(ctx->c->ld, (const char *) ctx->dn.data, LDAP_SASL_SIMPLE, &cred, NULL, NULL, &ctx->c->msgid);
 
         int rebind_msgid;
-        ngx_int_t rc2;
         cred.bv_val = (char *) ctx->server->bind_dn_passwd.data;
         cred.bv_len = ctx->server->bind_dn_passwd.len;
-        rc2 = ldap_sasl_bind(ctx->c->ld,(const char *) ctx->server->bind_dn.data, LDAP_SASL_SIMPLE, &cred, NULL, NULL, &rebind_msgid);
+        ldap_sasl_bind(ctx->c->ld,(const char *) ctx->server->bind_dn.data, LDAP_SASL_SIMPLE, &cred, NULL, NULL, &rebind_msgid);
 
         if (rc != LDAP_SUCCESS) {
             ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "http_auth_ldap: ldap_sasl_bind() failed (%d: %s)",
